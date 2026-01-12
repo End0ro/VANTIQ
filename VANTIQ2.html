@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VANTIQ - Автоматизация + Стратегия монетизации времени</title>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --black: #000000;
+      --white: #FFFFFF;
+      --accent: #FF3366;
+      --gray: #666666;
+      --light-gray: #F5F5F5;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      color: var(--black);
+      background: var(--white);
+      overflow-x: hidden;
+    }
+    
+    html { scroll-behavior: smooth; }
+    
+    /* Typography */
+    h1 { 
+      font-size: clamp(2.5rem, 7vw, 5.5rem); 
+      font-weight: 900; 
+      line-height: 1.05; 
+      letter-spacing: -0.04em; 
+      margin-bottom: 1.5rem;
+    }
+    h2 { 
+      font-size: clamp(2rem, 5vw, 3.5rem); 
+      font-weight: 900; 
+      line-height: 1.1; 
+      letter-spacing: -0.03em; 
+      margin-bottom: 1.5rem;
+    }
+    h3 { 
+      font-size: clamp(1.25rem, 2.5vw, 1.75rem); 
+      font-weight: 800; 
+      line-height: 1.2; 
+      margin-bottom: 1rem;
+    }
+    p { 
+      font-size: clamp(1rem, 1.8vw, 1.125rem); 
+      line-height: 1.7; 
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+    
+    .lead {
+      font-size: clamp(1.125rem, 2vw, 1.35rem);
+      line-height: 1.6;
+      font-weight: 500;
+    }
+    
+    /* Layout */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .section { padding: clamp(4rem, 10vw, 8rem) 0; position: relative; }
+    .section-sm { padding: clamp(3rem, 6vw, 5rem) 0; }
+    
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .header.scrolled {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 1.75rem;
+      font-weight: 900;
+      color: var(--black);
+      text-decoration: none;
+      letter-spacing: -0.03em;
+      transition: transform 0.3s;
+    }
+    .logo:hover { transform: scale(1.05); }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-link {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--black);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      position: relative;
+      transition: color 0.3s;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .nav-link:hover::after { width: 100%; }
+    
+    /* Buttons */
+    .btn {
+      display: inline-block;
+      padding: 1.25rem 3rem;
+      font-size: 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      border: none;
+      background: var(--black);
+      color: var(--white);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--accent);
+      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: -1;
+    }
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+    .btn:hover::before { left: 0; }
+    
+    /* Hero */
+    .hero {
+      padding-top: calc(80px + 6rem);
+      padding-bottom: 6rem;
+      min-height: 85vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(255, 51, 102, 0.08) 0%, transparent 70%);
+      animation: float 20s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(-50px, 50px) rotate(180deg); }
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 900px; }
+    .hero h1 { 
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(135deg, var(--black) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .lead {
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
+      margin-top: 2.5rem;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Section Styles */
+    .section-dark {
+      background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+      color: var(--white);
+    }
+    .section-dark h2,
+    .section-dark h3,
+    .section-dark p,
+    .section-dark .lead { color: var(--white); }
+    
+    .section-accent {
+      background: linear-gradient(135deg, var(--accent) 0%, #ff1744 100%);
+      color: var(--white);
+    }
+    .section-accent h2,
+    .section-accent h3,
+    .section-accent p,
+    .section-accent .lead { color: var(--white); }
+    
+    .section-light {
+      background: var(--light-gray);
+    }
+    
+    /* Grid */
+    .grid {
+      display: grid;
+      gap: 2.5rem;
+      margin-top: 3rem;
+    }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    
+    /* Value Cards */
+    .value-card {
+      padding: 2.5rem;
+      background: var(--white);
+      border: 3px solid var(--black);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .value-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100%;
+      background: var(--black);
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 0;
+    }
+    .value-card:hover {
+      transform: translateX(8px);
+      box-shadow: -8px 8px 0 var(--accent);
+    }
+    .value-card:hover::after { width: 100%; }
+    .value-card h3,
+    .value-card p {
+      position: relative;
+      z-index: 1;
+      transition: color 0.4s;
+    }
+    .value-card:hover h3,
+    .value-card:hover p { color: var(--white); }
+    
+    /* Feature List */
+    .feature-list {
+      margin-top: 2rem;
+      padding-left: 0;
+      list-style: none;
+    }
+    .feature-list li {
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+    .feature-icon {
+      font-size: 1.5rem;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .feature-content h4 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--white);
+    }
+    .feature-content p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    /* Difference Cards */
+    .diff-card {
+      padding: 2.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 4px solid var(--accent);
+      transition: all 0.4s;
+    }
+    .diff-card:hover {
+      background: rgba(255, 51, 102, 0.1);
+      transform: translateX(15px);
+    }
+    .diff-number {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+    
+    /* Process Steps */
+    .process-container {
+      margin-top: 4rem;
+      max-width: 900px;
+    }
+    .step {
+      padding: 3rem;
+      margin-bottom: 2.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 4px solid var(--accent);
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .step::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 3rem;
+      width: 20px;
+      height: 20px;
+      background: var(--accent);
+      border: 4px solid var(--black);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(255, 51, 102, 0.2);
+      transition: all 0.4s;
+    }
+    .step:hover {
+      background: rgba(255, 51, 102, 0.1);
+      transform: translateX(15px);
+    }
+    .step:hover::before {
+      transform: scale(1.3);
+      box-shadow: 0 0 0 8px rgba(255, 51, 102, 0.3);
+    }
+    .step-number {
+      font-size: 0.875rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .step h3 { margin-bottom: 1rem; }
+    .step-detail {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .step-detail strong {
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 700;
+    }
+    
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 3rem;
+      margin-top: 4rem;
+    }
+    .stat {
+      text-align: center;
+      position: relative;
+    }
+    .stat-number {
+      font-size: clamp(4rem, 10vw, 6rem);
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--white) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      transition: transform 0.3s;
+    }
+    .stat:hover .stat-number { transform: scale(1.1); }
+    .stat-label {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    /* Form */
+    .form-container {
+      max-width: 650px;
+      margin: 4rem auto 0;
+      padding: 3rem;
+      background: var(--white);
+      border: 3px solid var(--black);
+      box-shadow: 20px 20px 0 var(--accent);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .form-container:hover {
+      transform: translate(-5px, -5px);
+      box-shadow: 25px 25px 0 var(--accent);
+    }
+    .form-group { margin-bottom: 2rem; }
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      font-family: inherit;
+      border: 2px solid var(--black);
+      background: var(--white);
+      transition: all 0.3s;
+    }
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 51, 102, 0.2);
+    }
+    .form-textarea { resize: vertical; min-height: 120px; }
+    
+    /* Success */
+    .success {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: var(--white);
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      border: none;
+      box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+      display: none;
+      animation: slideInDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .success.show { display: block; }
+    
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Footer */
+    .footer {
+      background: var(--black);
+      color: var(--white);
+      padding: 5rem 0 2.5rem;
+      border-top: 4px solid var(--accent);
+    }
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 3rem;
+      margin-bottom: 3rem;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .footer h4 {
+      font-size: 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+      color: var(--accent);
+    }
+    .footer-links { list-style: none; }
+    .footer-link {
+      display: block;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      margin-bottom: 0.75rem;
+      transition: all 0.3s;
+      position: relative;
+      padding-left: 0;
+    }
+    .footer-link::before {
+      content: '→';
+      position: absolute;
+      left: -20px;
+      opacity: 0;
+      transition: all 0.3s;
+    }
+    .footer-link:hover {
+      color: var(--white);
+      padding-left: 20px;
+    }
+    .footer-link:hover::before {
+      opacity: 1;
+      left: 0;
+    }
+    .footer-bottom {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.875rem;
+    }
+    
+    /* Scroll Reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero { min-height: auto; padding-top: calc(80px + 3rem); }
+      .hero-buttons { flex-direction: column; width: 100%; }
+      .btn { width: 100%; text-align: center; }
+      .form-container { 
+        padding: 2rem; 
+        box-shadow: 10px 10px 0 var(--accent);
+      }
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <div class="header-inner">
+      <a href="#home" class="logo">VANTIQ</a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#home" class="nav-link">Главная</a></li>
+          <li><a href="#process" class="nav-link">Процесс</a></li>
+          <li><a href="#audit" class="nav-link">Аудит</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <div class="container">
+      <div class="hero-content">
+        <h1>Ваша команда тонет в рутине. А вы теряете деньги.</h1>
+        <p class="lead">
+          Большинство автоматизируют процессы, но не знают куда направить освободившееся время. 
+          В итоге — никакого роста прибыли.
+        </p>
+        <p class="lead">
+          <strong>Мы делаем по-другому:</strong> находим где теряете деньги, автоматизируем за 2-8 недель 
+          и создаём стратегию как превратить освободившееся время в прибыль.
+        </p>
+        <p class="lead">
+          Это не просто автоматизация. Это <strong>автоматизация + план монетизации времени + 
+          план роста на 12 месяцев</strong>.
+        </p>
+        <div class="hero-buttons">
+          <a href="#audit" class="btn">Получить бесплатный аудит</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Different -->
+  <section class="section section-dark">
+    <div class="container">
+      <h2 class="reveal">Почему мы — не как все</h2>
+      <p class="reveal lead" style="max-width: 800px; margin-bottom: 4rem;">
+        99% подрядчиков делают автоматизацию и уходят. Вы остаётесь с системой, 
+        но без понимания что делать дальше.
+      </p>
+      
+      <div class="grid grid-2">
+        <div class="diff-card reveal">
+          <div class="diff-number">01</div>
+          <h3>Показываем прототип ДО оплаты</h3>
+          <p>
+            Не просто "рассказываем что сделаем". Делаем live-демонстрацию на ваших данных. 
+            Вы видите как это работает, какие возможны ошибки, как их предотвратить — 
+            до того как заплатите хоть рубль.
+          </p>
+        </div>
+
+        <div class="diff-card reveal">
+          <div class="diff-number">02</div>
+          <h3>Не автоматизация ради автоматизации</h3>
+          <p>
+            Мы не просто "делаем чат-бота" или "настраиваем CRM". Мы анализируем всю цепочку процессов, 
+            находим где теряете деньги и автоматизируем системно — чтобы не создать узкие места в других местах.
+          </p>
+        </div>
+
+        <div class="diff-card reveal">
+          <div class="diff-number">03</div>
+          <h3>Стратегия монетизации времени</h3>
+          <p>
+            Автоматизировали процессы — освободили 20 часов в неделю. Что дальше? 
+            Мы создаём конкретный план: куда инвестировать время, какие процессы запустить, 
+            как вырастить прибыль.
+          </p>
+        </div>
+
+        <div class="diff-card reveal">
+          <div class="diff-number">04</div>
+          <h3>План роста на 12 месяцев</h3>
+          <p>
+            После автоматизации показываем возможности масштабирования: новые продукты, 
+            новые регионы, кросс-маркетинг с партнёрами в вашей индустрии. 
+            Вы получаете конкретный план роста, а не просто "работающую автоматизацию".
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What You Get - Audit -->
+  <section class="section">
+    <div class="container">
+      <h2 class="reveal">Что вы получаете на бесплатном аудите</h2>
+      <p class="reveal lead" style="max-width: 800px; margin-bottom: 3rem;">
+        Это не "60-минутная консультация". Это полноценный 7-дневный анализ вашего бизнеса 
+        стоимостью 50,000₽ — бесплатно.
+      </p>
+      
+      <div class="grid grid-3">
+        <div class="value-card reveal">
+          <h3>Карта процессов</h3>
+          <p>Визуализация всех процессов: от получения заявки до закрытия сделки. 
+          С отметками где теряете время, где клиенты отваливаются, где команда перегружена.</p>
+        </div>
+
+        <div class="value-card reveal">
+          <h3>Расчёт потерь в рублях</h3>
+          <p>Конкретные цифры: сколько теряете каждый месяц на ручной работе, 
+          сколько клиентов уходит из-за медленной обработки, сколько стоит перегрузка команды.</p>
+        </div>
+
+        <div class="value-card reveal">
+          <h3>Live-демонстрация решения</h3>
+          <p>Показываем прототип на ваших реальных данных. Вы видите как это работает, 
+          какие ошибки возможны, как мы их предотвращаем — ДО принятия решения.</p>
+        </div>
+
+        <div class="value-card reveal">
+          <h3>План автоматизации</h3>
+          <p>Чек-лист с приоритетами: что автоматизировать первым для быстрых результатов, 
+          что потом для глубокой оптимизации, что оставить как есть.</p>
+        </div>
+
+        <div class="value-card reveal">
+          <h3>ROI-прогноз на 12 месяцев</h3>
+          <p>Прогноз экономии времени и денег: сколько сэкономите на зарплатах, 
+          сколько дополнительных клиентов обработаете, когда проект окупится.</p>
+        </div>
+
+        <div class="value-card reveal">
+          <h3>Стратегия монетизации</h3>
+          <p>Конкретный план: куда направить освободившееся время для роста прибыли. 
+          Масштабирование команды, новые продукты, или выход на новые рынки.</p>
+        </div>
+      </div>
+
+      <div class="reveal" style="text-align: center; margin-top: 4rem;">
+        <p class="lead" style="margin-bottom: 2rem;">
+          <strong>Ваше участие:</strong> 1 встреча 60-90 минут
+        </p>
+        <a href="#audit" class="btn">Получить аудит бесплатно</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="section section-accent">
+    <div class="container">
+      <h2 class="reveal" style="text-align: center; margin-bottom: 2rem;">Процесс работы</h2>
+      <p class="reveal lead" style="text-align: center; max-width: 700px; margin: 0 auto 4rem;">
+        Минимум вашего участия. Максимум автоматизации. Гарантия результата.
+      </p>
+      <div class="stats-grid">
+        <div class="stat reveal">
+          <div class="stat-number" data-target="7">0</div>
+          <div class="stat-label">Дней аудит</div>
+        </div>
+        <div class="stat reveal">
+          <div class="stat-number" data-target="8">0</div>
+          <div class="stat-label">Недель внедрение</div>
+        </div>
+        <div class="stat reveal">
+          <div class="stat-number" data-target="2">0</div>
+          <div class="stat-label">Часа в неделю</div>
+        </div>
+        <div class="stat reveal">
+          <div class="stat-number" data-target="12">0</div>
+          <div class="stat-label">Месяцев план</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What You Get - Implementation -->
+  <section class="section section-dark">
+    <div class="container">
+      <h2 class="reveal">Что вы получаете после внедрения</h2>
+      <p class="reveal lead" style="max-width: 800px; margin-bottom: 3rem;">
+        Это не просто "настроили автоматизацию и ушли". Вы получаете полный пакет для самостоятельной работы.
+      </p>
+
+      <ul class="feature-list">
+        <li class="reveal">
+          <span class="feature-icon">✓</span>
+          <div class="feature-content">
+            <h4>Работающие автоматизации под ключ</h4>
+            <p>Все процессы настроены, протестированы, интегрированы с вашими системами. 
+            CRM, email-платформы, системы учёта — всё работает автоматически.</p>
+          </div>
+        </li>
+
+        <li class="reveal">
+          <span class="feature-icon">✓</span>
+          <div class="feature-content">
+            <h4>Обученная команда</h4>
+            <p>Создаём подробную документацию с пошаговыми инструкциями. 
+            Каждый сотрудник получает доступ к материалам и может разобраться самостоятельно.</p>
+          </div>
+        </li>
+
+        <li class="reveal">
+          <span class="feature-icon">✓</span>
+          <div class="feature-content">
+            <h4>Полная документация</h4>
+            <p>Пошаговые инструкции на каждый процесс. Как запустить, как проверить, 
+            что делать если что-то пошло не так. Видео-туториалы для новых сотрудников.</p>
+          </div>
+        </li>
+
+        <li class="reveal">
+          <span class="feature-icon">✓</span>
+          <div class="feature-content">
+            <h4>Система проверок и откатов</h4>
+            <p>Критические решения требуют подтверждения человека. Логирование всех действий. 
+            Откат к предыдущей версии за 1 клик если что-то пошло не так.</p>
+          </div>
+        </li>
+
+        <li class="reveal">
+          <span class="feature-icon">✓</span>
+          <div class="feature-content">
+            <h4>3 месяца бесплатной техподдержки</h4>
+            <p>Отвечаем на любые вопросы в течение 3 месяцев. Telegram-чат с быстрыми ответами. 
+            Помогаем адаптировать систему под новые задачи.</p>
+          </div>
+        </li>
+
+        <li class="reveal">
+          <span class="feature-icon">✓</span>
+          <div class="feature-content">
+            <h4>План роста на 12 месяцев</h4>
+            <p>Конкретный план масштабирования: что запускать в первую очередь, 
+            какие ресурсы нужны, какие метрики отслеживать. Вы знаете куда двигаться после автоматизации.</p>
+          </div>
+        </li>
+
+        <li class="reveal">
+          <span class="feature-icon">✓</span>
+          <div class="feature-content">
+            <h4>Полный контроль над системами</h4>
+            <p>Передаём все доступы, всю документацию. После внедрения вы полностью контролируете системы. 
+            Можете остаться с нами на поддержке или управлять самостоятельно.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section" id="process">
+    <div class="container">
+      <h2 class="reveal">Как мы работаем</h2>
+      <div class="process-container">
+        
+        <div class="step reveal">
+          <div class="step-number">Шаг 1 — 7 дней</div>
+          <h3>Бесплатный стратегический аудит</h3>
+          <p>
+            Анализируем ваши бизнес-процессы. Находим узкие места где теряете время и деньги. 
+            Делаем live-демонстрацию прототипа на ваших реальных данных.
+          </p>
+          <div class="step-detail">
+            <p><strong>Ваше участие:</strong> 1 встреча 60-90 минут</p>
+          </div>
+        </div>
+
+        <div class="step reveal">
+          <div class="step-number">Шаг 2 — 2-8 недель</div>
+          <h3>Внедрение автоматизации</h3>
+          <p>
+            Начинаем с самых важных процессов — автоматизируем их за 7-10 дней. 
+            Команда видит результат сразу. Вся техническая работа на нас.
+          </p>
+          <p style="margin-top: 1rem; color: rgba(255, 255, 255, 0.8);">
+            <em>Продолжительность работы зависит от сложности задачи и количества процессов для автоматизации.</em>
+          </p>
+          <div class="step-detail">
+            <p><strong>Что включено:</strong> Настройка автоматизаций • Интеграция с системами • 
+            Обучение команды • Документация • 3 месяца техподдержки</p>
+          </div>
+          <div class="step-detail">
+            <p><strong>Ваше участие:</strong> Максимум 2 часа в неделю</p>
+          </div>
+        </div>
+
+        <div class="step reveal">
+          <div class="step-number">Шаг 3 — 1 сессия</div>
+          <h3>Стратегия роста на 12 месяцев</h3>
+          <p>
+            Создаём план масштабирования. Показываем куда инвестировать освободившееся время: 
+            масштабирование команды, выход на новые рынки, новые продукты.
+          </p>
+          <div class="step-detail">
+            <p><strong>Формат:</strong> 2-часовая сессия + презентация с конкретными шагами</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="reveal" style="margin-top: 4rem; padding: 2.5rem; background: var(--light-gray); border-left: 4px solid var(--accent);">
+        <h3 style="margin-bottom: 1rem;">Гарантия результата</h3>
+        <p style="font-size: 1.125rem; margin: 0;">
+          Если не достигнем результата за согласованный срок — <strong>возвращаем 25% оплаты</strong> 
+          и работаем вдвое дольше бесплатно.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Audit Form -->
+  <section class="section section-light" id="audit">
+    <div class="container">
+      <h2 class="reveal" style="text-align: center;">Получить бесплатный аудит</h2>
+      <p class="reveal lead" style="text-align: center; max-width: 700px; margin: 0 auto 3rem;">
+        7 дней анализа вашего бизнеса. Без обязательств. Аудит стоимостью 50,000₽ — бесплатно.
+      </p>
+      
+      <div id="success-msg" class="success">
+        ✓ Спасибо! Заявка получена. Мы свяжемся с вами в течение 24 часов.
+      </div>
+
+      <form class="form-container" id="audit-form">
+        <h3 style="margin-bottom: 2rem; text-align: center;">Заявка на аудит</h3>
+        
+        <div class="form-group">
+          <label class="form-label">Имя *</label>
+          <input type="text" name="name" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input type="email" name="email" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Telegram</label>
+          <input type="text" name="telegram" class="form-input" placeholder="@username">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Компания *</label>
+          <input type="text" name="company" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Индустрия *</label>
+          <select name="industry" class="form-select" required>
+            <option value="">Выберите</option>
+            <option value="realestate">Агентство недвижимости</option>
+            <option value="education">Онлайн-школа</option>
+            <option value="recruitment">Рекрутинг</option>
+            <option value="saas">SaaS</option>
+            <option value="marketing">Маркетинг</option>
+            <option value="other">Другое</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Размер команды *</label>
+          <select name="teamSize" class="form-select" required>
+            <option value="">Выберите</option>
+            <option value="1-10">1-10 человек</option>
+            <option value="11-20">11-20 человек</option>
+            <option value="21-50">21-50 человек</option>
+            <option value="51+">51+ человек</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Главная проблема</label>
+          <textarea name="pain" class="form-textarea" 
+            placeholder="Расскажите в 2-3 предложениях какая у вас самая большая проблема"></textarea>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%;">Отправить заявку</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div>
+          <h4>VANTIQ</h4>
+          <p style="color: rgba(255,255,255,0.7); max-width: 350px;">
+            Автоматизируем бизнес-процессы и показываем как превратить время в прибыль.
+          </p>
+        </div>
+        <div>
+          <h4>Контакты</h4>
+          <ul class="footer-links">
+            <li><a href="https://t.me/your_telegram" class="footer-link">Telegram</a></li>
+            <li><a href="/cdn-cgi/l/email-protection#afc7cac3c3c0efd9cec1dbc6de81ccc0c2" class="footer-link">Email</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2025 VANTIQ</div>
+    </div>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Header scroll
+      const header = document.getElementById('header');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+
+      // Scroll reveal
+      function revealOnScroll() {
+        const reveals = document.querySelectorAll('.reveal');
+        reveals.forEach(element => {
+          const windowHeight = window.innerHeight;
+          const elementTop = element.getBoundingClientRect().top;
+          const elementVisible = 100;
+          
+          if (elementTop < windowHeight - elementVisible) {
+            element.classList.add('active');
+          }
+        });
+      }
+      
+      window.addEventListener('scroll', revealOnScroll);
+      revealOnScroll();
+
+      // Animated counters
+      function animateCounter(element) {
+        const target = parseInt(element.getAttribute('data-target'));
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+        
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) {
+            element.textContent = target;
+            clearInterval(timer);
+          } else {
+            element.textContent = Math.floor(current);
+          }
+        }, 16);
+      }
+
+      const counters = document.querySelectorAll('.stat-number');
+      const observerOptions = { threshold: 0.5, rootMargin: '0px' };
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+            animateCounter(entry.target);
+            entry.target.classList.add('counted');
+          }
+        });
+      }, observerOptions);
+      counters.forEach(counter => observer.observe(counter));
+
+      // Form
+      const form = document.getElementById('audit-form');
+      const success = document.getElementById('success-msg');
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => { data[key] = value; });
+        
+        localStorage.setItem('auditSubmission', JSON.stringify({
+          ...data,
+          submittedAt: new Date().toISOString()
+        }));
+
+        success.classList.add('show');
+        form.reset();
+        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        setTimeout(() => success.classList.remove('show'), 6000);
+      });
+
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
